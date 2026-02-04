@@ -1,0 +1,17 @@
+# 1. Use the LATEST specialized vLLM executor (2026 stable)
+FROM runpod/worker-v1-vllm:v2.11.3
+
+# 2. Set the working directory
+WORKDIR /
+
+# 3. Bake the model (huggingface_hub is pre-installed)
+# This downloads during 'docker build'
+RUN python3 -c "from huggingface_hub import snapshot_download; \
+    snapshot_download(repo_id='nvidia/Qwen3-30B-A3B-NVFP4', local_dir='/model', token='')"
+
+# 4. Configure for Serverless
+ENV MODEL_NAME=/model
+ENV MAX_MODEL_LEN=16384
+ENV GPU_MEMORY_UTILIZATION=0.95
+
+# sudo docker build --platform linux/amd64 -t saiphyohein/qwen3-30b-a3b:v1 .
